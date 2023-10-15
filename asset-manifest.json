@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/maze-game/static/css/main.2d9384dd.css",
+    "main.js": "/maze-game/static/js/main.087ed69e.js",
+    "index.html": "/maze-game/index.html",
+    "main.2d9384dd.css.map": "/maze-game/static/css/main.2d9384dd.css.map",
+    "main.087ed69e.js.map": "/maze-game/static/js/main.087ed69e.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.2d9384dd.css",
+    "static/js/main.087ed69e.js"
+  ]
+}
