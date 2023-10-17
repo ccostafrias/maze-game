@@ -1,5 +1,4 @@
-@charset "UTF-8";
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap');
 
 /*Generic CSS*/
 
@@ -12,19 +11,19 @@
 }
 
 :root {
-    --font-main:  'Poppins', sans-serif;
+    --font-main: 'Oswald', sans-serif;
 
     --fs-xl: 3rem;
     --fs-600: 2rem;
-    --fs-500: 1.5rem;
+    --fs-500: 1.25rem;
     --fs-400: 1rem;
     --fs-200: .6rem;
 
     --fw-regular: 400;
     --fw-bold: 700;
 
-    --primary-color: #8FBC8F;
-    --secundary-color: #2E8B57;
+    --primary-color: #faebd7;
+    --secundary-color: #126000;
 }
 
 body,
@@ -43,12 +42,11 @@ h6 {
     color: #161616;
 }
 
-button, input {
+button {
     appearance: none;
     border: none;
     background: none;
     cursor: pointer;
-    outline: none;
 }
 
 ul,
@@ -71,11 +69,12 @@ body {
     align-items: center;
     justify-content: center;
     color: #001635;
-    background-color: #000000;
+    background-color: var(--primary-color);
 }
 
 main, #root {
     width: 100%;
+    height: 100vh;
 }
 
 main {
@@ -93,16 +92,150 @@ main {
     border-radius: 5px;
 }
 
-.wall, .border {background-color: #001635}
-.in {background-color: #faebd7}
+.wall, .border {background-color: #126000}
+.in, .start, .end {background-color: var(--primary-color)}
 .path {background-color: #aea59a}
 .frontier {background-color: blue}
 .actual {background-color: red}
 
 .bttn {
-    background-color: #001635;
-    color: wheat;
+    background-color: var(--secundary-color);
+    color: var(--primary-color);
     margin-top: 1em;
-    border-radius: .5em;
+    text-transform: uppercase;
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-400);
+    transition: all .1s ease-in;
+}
+
+.bttn:hover {
+    transform: scale(1.1);
+}
+
+.bttn-plus {
+    font-size: var(--fs-500);
     padding: .5em;
+}
+
+.bttn > label {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: .5em;
+    cursor: pointer;
+}
+
+/* SVG */
+
+.github-svg {
+    height: 50px;
+    width: 50px;
+}
+
+.logo-svg {
+    width: 300px;
+}
+
+.logo-svg > polygon, .logo-svg > path, .github-svg > path {
+    fill: var(--secundary-color);
+}
+
+/* Menu */
+
+.main-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.section-menu {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    align-items: center;
+}
+
+.input-size {
+    text-align: center;
+    border: 4px solid var(--secundary-color);
+    padding: 5px;
+    width: 100px;
+    font-size: var(--fs-500);
+}
+
+.option-wrapper, .header-menu {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.option-wrapper {
+    padding-bottom: 1rem;
+    border-bottom: 4px dashed var(--secundary-color);
+}
+
+.option-wrapper:before {
+    content: '';
+    position: absolute;
+    transform: translateY(-50%);
+    top: 1rem;
+    width: 300px;
+    height: 4px;
+    border-bottom: 4px dashed var(--secundary-color);
+    z-index: -999;
+}
+
+.option-wrapper > h3 {
+    background-color: var(--primary-color);
+    padding: .2rem .2rem;
+}
+
+
+.difficult-radio {
+    display: none;
+}
+
+.difficult-bttns {
+    display: flex;
+    width: 250px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+}
+
+.difficult-bttns > .bttn {
+    flex: 1 1 0px;
+}
+
+.active {
+    background-color: var(--primary-color);
+    box-shadow: inset 0 0 0 4px var(--secundary-color);
+    color: var(--secundary-color);
+}
+
+/* Footer */
+
+.footer {
+    position: fixed;
+    display: flex;
+    align-items: end;
+    justify-content: end;
+    bottom: 20px;
+    right: 20px;
+}
+
+/* Extra */
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
 }
