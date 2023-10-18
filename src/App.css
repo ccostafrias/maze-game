@@ -98,6 +98,8 @@ main {
 .frontier {background-color: blue}
 .actual {background-color: red}
 
+.player {background-color: rgb(255, 174, 0);}
+
 .bttn {
     background-color: var(--secundary-color);
     color: var(--primary-color);

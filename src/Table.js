@@ -7,14 +7,19 @@ export default function Table(props) {
         setGameState,
     } = props
 
+
+    const [count, setCount] = useState(0)
+    const [player, setPlayer] = useState({x: 1, y: 0})
     const [maze, setMaze] = useState(restartMaze())
+    const [fodase, setFodase] = useState(0)
+    
     function restartMaze() {
         return (
                 Array.from(Array(tableSize**2)).map((_, i) => {
                     let type
                     const x = i % tableSize
                     const y = Math.floor(i / tableSize)
-                    if (x === 1 && y === 0) type = 'start'
+                    if (x === player.x && y === player.y) type = 'player'
                     else if (x === tableSize-2 && y === tableSize-1) type = 'end'
                     else if (x === 0 || y === 0 || x === tableSize-1 || y === tableSize-1) type = 'border'
                     else if (x === 1 && y === 1) type = 'in'
@@ -29,7 +34,6 @@ export default function Table(props) {
                 })
                 )
     }
-    const [count, setCount] = useState(0)
 
     function randomFrontier() {
         const frontiers = maze.filter(m => m.type === 'frontier')
@@ -78,7 +82,7 @@ export default function Table(props) {
 
         return ortFront.map(o => ({...o, type: 'frontier'}))
     }
-
+    
     function buildMaze() {
         const countFrountier = maze.filter(m => m.type === 'frontier').length
         if (countFrountier <= 0) {
@@ -86,15 +90,15 @@ export default function Table(props) {
             setMaze(prevMaze => prevMaze.map(m => ({...m, actual: false})))
             return
         }
-
+        
         const frontier = randomFrontier()
         const path = randomPath(frontier)
         const [wall, actual] = removeWall(path, frontier)
         const newFrontiers = addFrontiers(frontier)
-
+        
         const toChange = [...newFrontiers, wall, actual]
-
-
+        
+        
         setMaze(prevMaze => {
             return prevMaze.map(m => {
                 const isChange = toChange.find(c => c.x === m.x && c.y === m.y)
@@ -108,9 +112,55 @@ export default function Table(props) {
         setCount(prevCount => prevCount + 1)
     }
 
+    function newPos(e) {
+        if (e.key === "ArrowLeft") {
+            const {x, y} = player
+            return {x: x - 1, y}
+        }
+        if (e.key === "ArrowRight") {
+            const {x, y} = player
+            return {x: x + 1, y}
+        }
+        if (e.key === "ArrowUp") {
+            const {x, y} = player
+            return {x, y: y - 1}
+        }
+        if (e.key === "ArrowDown") {
+            const {x, y} = player
+            return {x, y: y + 1}
+        }
+
+        return {x: 1, y: 0}
+    }
+
+    function movePlayer(e) {
+        const {x, y} = newPos(e)
+
+        if ((x < 0 || y < 0) || (x > tableSize-1 || y > tableSize-1 )) return
+
+        const mazeMatch = maze.find(m => m.x === x && m.y === y)
+        
+        if (mazeMatch.type === 'wall' || mazeMatch.type === 'border') return
+        if (mazeMatch.type === 'end') {
+            restartGame()
+            return
+        }
+
+        setPlayer({x, y})
+        
+        setMaze(prevMaze => {
+            return prevMaze.map(m => {
+                if (m.x === x && m.y === y) return {...m, type: 'player'}
+                else if (m.type === 'player') return {...m, type: 'in'}
+                return m
+            })
+        })
+    }
+    
     function restartGame() {
-        setCount(Math.random(1))
+        setPlayer({x: 1, y: 0})
         setMaze(restartMaze())
+        setCount(Math.random(1))
     }
 
     const random = size => Math.floor(Math.random() * size)
@@ -119,10 +169,20 @@ export default function Table(props) {
         buildMaze()
     }, [count])
 
+    useEffect(() => {
+        window.addEventListener("keydown", movePlayer)
+        // window.addEventListener("keyup", movePlayer)
+
+        return () => {
+            window.removeEventListener("keydown", movePlayer)
+            // window.removeEventListener("keyup", movePlayer)
+        }
+    }, [player])
+
     const tableCells = maze.map((cell, i) => {
         const style = cell.actual ? {backgroundColor: "red"} : null
         return (
-            <div className={cell.type} style={style}>
+            <div className={cell.type} style={style} key={i}>
             </div>
         ) 
     })
