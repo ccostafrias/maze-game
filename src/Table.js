@@ -113,19 +113,21 @@ export default function Table(props) {
     }
 
     function mousehandle(e) {
-        if (e.type === 'mousedown' && e.target.className === 'player') setMouseDown(true)
-        else if (e.type === 'mouseup') setMouseDown(false)
+        if ((e.type === 'mousedown' || e.type === 'touchstart') && e.target.className === 'player') setMouseDown(true)
+        else if (e.type === 'mouseup' || e.type === 'touchend') setMouseDown(false)
     }
 
     // ADICIONAR TECLA R PRA RESET
     function keyhandle(e) {
-
+        if (e.key === 'r') restartTable()
     }
 
     function movePlayer(e) {
         if (!mouseDown) return
+
+        const trueTarget = e.type.includes('mouse') ? e.target : document.elementFromPoint(e.touches[0].pageX, e.touches[0].pageY)
         
-        const [x, y] = Object.values(e.target.dataset).map(v => Number(v))
+        const [x, y] = Object.values(trueTarget.dataset).map(v => Number(v))
 
         const isPlayerAligned = getPlayerAligned(x, y)
         
@@ -211,8 +213,12 @@ export default function Table(props) {
 
     useEffect(() => {
         window.addEventListener('mouseup', mousehandle)
+        window.addEventListener('touchend', mousehandle)
 
-        return () => window.removeEventListener('mouseup', mousehandle)
+        return () => {
+            window.removeEventListener('mouseup', mousehandle)
+            window.removeEventListener('touchend', mousehandle)
+        }
     }, [mouseDown, player])
 
     useEffect(() => {
@@ -231,9 +237,11 @@ export default function Table(props) {
                 style={style} 
                 key={i}
                 onMouseMove={movePlayer}
+                onTouchMove={movePlayer}
                 onMouseDown={mousehandle}
                 onMouseUp={mousehandle}
-                onDrag={(e) => e.preventDefault()}
+                onTouchStart={mousehandle}
+                onTouchEnd={mousehandle}
             >
             </div>
         ) 
@@ -247,7 +255,7 @@ export default function Table(props) {
             }}>
                 {tableCells}
             </div>
-            <button className="bttn bttn-plus" onClick={() => restartTable()}>Restart</button>
+            <button className="bttn bttn-plus" onClick={restartTable}>Restart</button>
         </main>
     )
 }
