@@ -90,15 +90,19 @@ main {
     width: 90%;
     display: grid;
     border-radius: 5px;
+    user-select: none;
 }
 
-.wall, .border {background-color: #126000}
-.in, .start, .end {background-color: var(--primary-color)}
-.path {background-color: #aea59a}
-.frontier {background-color: blue}
-.actual {background-color: red}
 
-.player {background-color: rgb(255, 174, 0);}
+
+.wall, .border { background-color: #126000 }
+.in, .start, .end { background-color: var(--primary-color) }
+.path { background-color: #aea59a }
+.frontier { background-color: blue }
+.actual { background-color: red }
+.trail{ background-color: rgb(255, 217, 135) }
+
+.player { background-color: rgb(255, 174, 0) }
 
 .bttn {
     background-color: var(--secundary-color);

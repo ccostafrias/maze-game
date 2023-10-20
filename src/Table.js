@@ -11,15 +11,15 @@ export default function Table(props) {
     const [count, setCount] = useState(0)
     const [player, setPlayer] = useState({x: 1, y: 0})
     const [maze, setMaze] = useState(restartMaze())
-    const [fodase, setFodase] = useState(0)
+    const [mouseDown, setMouseDown] = useState(false)
     
-    function restartMaze() {
+    function restartMaze(np = {x: 1, y: 0}) {
         return (
                 Array.from(Array(tableSize**2)).map((_, i) => {
                     let type
                     const x = i % tableSize
                     const y = Math.floor(i / tableSize)
-                    if (x === player.x && y === player.y) type = 'player'
+                    if (x === np.x && y === np.y) type = 'player'
                     else if (x === tableSize-2 && y === tableSize-1) type = 'end'
                     else if (x === 0 || y === 0 || x === tableSize-1 || y === tableSize-1) type = 'border'
                     else if (x === 1 && y === 1) type = 'in'
@@ -46,7 +46,7 @@ export default function Table(props) {
             for (let c = -2; c <= 2; c = c + 2) {
                 if ((f.y + c <= 0 || f.x + r <= 0) || (f.y + c >= tableSize-1 || f.x + r >= tableSize-1 )) continue
                 if (Math.abs(c+r) !== 2) continue
-                const choosen = maze.find(m => (m.x === f.x + r) && (m.y === f.y + c))
+                const choosen = maze[f.x + r + ((f.y + c) * tableSize)]
 
                 if (choosen.type !== 'in') continue
                 paths.push(choosen)
@@ -73,7 +73,7 @@ export default function Table(props) {
                 if ((f.y + c <= 0 || f.x + r <= 0) || (f.y + c >= tableSize-1 || f.x + r >= tableSize-1 )) continue
                 if (Math.abs(c+r) !== 2) continue
                 
-                const choosen = maze.find(m => (m.x === f.x + r) && (m.y === f.y + c))
+                const choosen = maze[f.x + r + ((f.y + c) * tableSize)]
 
                 if (choosen.type === 'in') continue
                 ortFront.push(choosen)
@@ -112,55 +112,95 @@ export default function Table(props) {
         setCount(prevCount => prevCount + 1)
     }
 
-    function newPos(e) {
-        if (e.key === "ArrowLeft") {
-            const {x, y} = player
-            return {x: x - 1, y}
-        }
-        if (e.key === "ArrowRight") {
-            const {x, y} = player
-            return {x: x + 1, y}
-        }
-        if (e.key === "ArrowUp") {
-            const {x, y} = player
-            return {x, y: y - 1}
-        }
-        if (e.key === "ArrowDown") {
-            const {x, y} = player
-            return {x, y: y + 1}
-        }
+    function mousehandle(e) {
+        if (e.type === 'mousedown' && e.target.className === 'player') setMouseDown(true)
+        else if (e.type === 'mouseup') setMouseDown(false)
+    }
 
-        return {x: 1, y: 0}
+    // ADICIONAR TECLA R PRA RESET
+    function keyhandle(e) {
+
     }
 
     function movePlayer(e) {
-        const {x, y} = newPos(e)
-
-        if ((x < 0 || y < 0) || (x > tableSize-1 || y > tableSize-1 )) return
-
-        const mazeMatch = maze.find(m => m.x === x && m.y === y)
+        if (!mouseDown) return
         
-        if (mazeMatch.type === 'wall' || mazeMatch.type === 'border') return
-        if (mazeMatch.type === 'end') {
-            restartGame()
-            return
+        const [x, y] = Object.values(e.target.dataset).map(v => Number(v))
+
+        const isPlayerAligned = getPlayerAligned(x, y)
+        
+        if (isPlayerAligned) {
+            if (isPlayerAligned.length > 0 && isPlayerAligned !== 'end') {
+                setMaze(prevMaze => {
+                    return prevMaze.map(m => {
+                        const inAligned = isPlayerAligned.find(a => a.x === m.x && a.y === m.y)
+                        if (m.x === x && m.y === y) return {...m, type: 'player'}
+                        else if (m.type === 'player') return {...m, type: 'trail'}
+                        else if (inAligned) return {...m, type: 'trail'}
+                        return m
+                    })
+                })
+    
+                setPlayer({x, y})
+
+                return
+            }
+
+            if (isPlayerAligned === 'end') {
+                restartGame()
+            }
+        }        
+        
+    }
+
+    function getPlayerAligned(x, y) {
+        const [xp, yp] = Object.values(player)
+
+        const between = []
+
+        if (xp === x) {
+            const hy = yp > y ? yp : y
+            const ly = yp < y ? yp : y
+            const addLow = ly === yp ? 1 : 0
+            const addHigh = hy === yp ? 0 : 1
+            for (let r = ly+addLow; r < hy+addHigh; r++) {
+                const cell = maze[x + r * tableSize]
+                if (cell.type === 'end') return 'end'
+                if (cell.type !== 'in') return false
+                between.push(maze[x + r * tableSize])
+            }
+            return between
+        }
+        if (yp === y) {
+            const hx = xp > x ? xp : x
+            const lx = xp < x ? xp : x
+            const addLow = lx === xp ? 1 : 0
+            const addHigh = hx === xp ? 0 : 1
+            for (let c = lx+addLow; c < hx+addHigh; c++) {
+                const cell = maze[c + y * tableSize]
+                if (cell.type === 'end') return 'end'
+                if (cell.type !== 'in') return false
+                between.push(maze[c + y * tableSize])
+            }
+            return between
         }
 
-        setPlayer({x, y})
-        
-        setMaze(prevMaze => {
-            return prevMaze.map(m => {
-                if (m.x === x && m.y === y) return {...m, type: 'player'}
-                else if (m.type === 'player') return {...m, type: 'in'}
-                return m
-            })
-        })
+        return false
     }
     
     function restartGame() {
         setPlayer({x: 1, y: 0})
         setMaze(restartMaze())
         setCount(Math.random(1))
+    }
+
+    function restartTable() {
+        setPlayer({x: 1, y: 0})
+        setMaze(prevMaze => prevMaze.map(m => {
+            if (m.x === 1 && m.y === 0) return {...m, type: 'player'}
+            if (m.type === 'trail' || m.type === 'player') return {...m, type: 'in'}
+            return m
+        }))
     }
 
     const random = size => Math.floor(Math.random() * size)
@@ -170,19 +210,31 @@ export default function Table(props) {
     }, [count])
 
     useEffect(() => {
-        window.addEventListener("keydown", movePlayer)
-        // window.addEventListener("keyup", movePlayer)
+        window.addEventListener('mouseup', mousehandle)
 
-        return () => {
-            window.removeEventListener("keydown", movePlayer)
-            // window.removeEventListener("keyup", movePlayer)
-        }
-    }, [player])
+        return () => window.removeEventListener('mouseup', mousehandle)
+    }, [mouseDown, player])
+
+    useEffect(() => {
+        window.addEventListener('keyup', keyhandle)
+
+        return () => window.removeEventListener('keyup', keyhandle)
+    }, [])
 
     const tableCells = maze.map((cell, i) => {
         const style = cell.actual ? {backgroundColor: "red"} : null
         return (
-            <div className={cell.type} style={style} key={i}>
+            <div 
+                className={cell.type} 
+                data-column={i % tableSize}
+                data-row={Math.floor(i/tableSize)}
+                style={style} 
+                key={i}
+                onMouseMove={movePlayer}
+                onMouseDown={mousehandle}
+                onMouseUp={mousehandle}
+                onDrag={(e) => e.preventDefault()}
+            >
             </div>
         ) 
     })
@@ -195,7 +247,7 @@ export default function Table(props) {
             }}>
                 {tableCells}
             </div>
-            <button className="bttn bttn-plus" onClick={() => restartGame()}>Restart</button>
+            <button className="bttn bttn-plus" onClick={() => restartTable()}>Restart</button>
         </main>
     )
 }
