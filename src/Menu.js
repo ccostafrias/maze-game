@@ -60,7 +60,7 @@ export default function Menu(props) {
                 <div className="option-wrapper">
                     <h3>Difficult</h3>
                     <form onSubmit={handleSubmit}>
-                        <div className="difficult-bttns">
+                        <div className="bttns-wrapper">
                             <input 
                                 type="radio" 
                                 className="difficult-radio" 

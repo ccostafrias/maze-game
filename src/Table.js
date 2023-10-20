@@ -12,6 +12,7 @@ export default function Table(props) {
     const [player, setPlayer] = useState({x: 1, y: 0})
     const [maze, setMaze] = useState(restartMaze())
     const [mouseDown, setMouseDown] = useState(false)
+    const [score, setScore] = useState(0)
     
     function restartMaze(np = {x: 1, y: 0}) {
         return (
@@ -86,7 +87,6 @@ export default function Table(props) {
     function buildMaze() {
         const countFrountier = maze.filter(m => m.type === 'frontier').length
         if (countFrountier <= 0) {
-            setGameState('finish')
             setMaze(prevMaze => prevMaze.map(m => ({...m, actual: false})))
             return
         }
@@ -117,7 +117,6 @@ export default function Table(props) {
         else if (e.type === 'mouseup' || e.type === 'touchend') setMouseDown(false)
     }
 
-    // ADICIONAR TECLA R PRA RESET
     function keyhandle(e) {
         if (e.key === 'r') restartTable()
     }
@@ -168,7 +167,7 @@ export default function Table(props) {
             for (let r = ly+addLow; r < hy+addHigh; r++) {
                 const cell = maze[x + r * tableSize]
                 if (cell.type === 'end') return 'end'
-                if (cell.type !== 'in') return false
+                if (cell.type !== 'in' && cell.type !== 'trail') return false
                 between.push(maze[x + r * tableSize])
             }
             return between
@@ -181,7 +180,7 @@ export default function Table(props) {
             for (let c = lx+addLow; c < hx+addHigh; c++) {
                 const cell = maze[c + y * tableSize]
                 if (cell.type === 'end') return 'end'
-                if (cell.type !== 'in') return false
+                if (cell.type !== 'in' && cell.type !== 'trail') return false
                 between.push(maze[c + y * tableSize])
             }
             return between
@@ -190,7 +189,8 @@ export default function Table(props) {
         return false
     }
     
-    function restartGame() {
+    function restartGame(dev = false) {
+        if (!dev) setScore(prevScore => prevScore + 1)
         setPlayer({x: 1, y: 0})
         setMaze(restartMaze())
         setCount(Math.random(1))
@@ -250,12 +250,18 @@ export default function Table(props) {
 
     return (
         <main className="main-game">
+            <div>
+                <h3>Mazes through: {score}</h3>
+            </div>
             <div className="table" style={{
                 gridTemplateColumns: `repeat(${tableSize}, 1fr)`
             }}>
                 {tableCells}
             </div>
-            <button className="bttn bttn-plus" onClick={restartTable}>Restart</button>
+            <div className="bttns-wrapper">
+                <button className="bttn bttn-plus" onClick={() => restartGame(true)}>Restart</button>
+                <button className="bttn bttn-plus" onClick={() => setGameState('menu')}>Menu</button>
+            </div>
         </main>
     )
 }
