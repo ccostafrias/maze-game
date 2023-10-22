@@ -5,23 +5,20 @@ import {ReactComponent as GitHub} from './images/github.svg'
 
 export default function Menu(props) {
     const {
-        gameState,
         setGameState,
         setTableSize,
         tableSize,
+        formData,
+        setFormData,
     } = props
 
-    const [formData, setFormData] = useState(
-        {
-            difficult: "medium",
-        })
-
     const handleChange = (event) => {
-        const { name, value } = event.target
+        const { name, value, checked, type } = event.target ? event.target : event
+
         setFormData((prevFormData) => (
             { 
                 ...prevFormData, 
-                [name]: value 
+                [name]: type === 'checkbox' ? checked : value 
             }
         ))
 
@@ -39,7 +36,18 @@ export default function Menu(props) {
 
 
     function keyDown(e) {
-        console.log(e, e.key, e.target.children['label'])
+        if (e.key !== 'Enter') return
+        const label = [...e.target.children][0]
+        const [name] = label.className.split('-')
+        const value = label.htmlFor
+        console.log(value)
+        const newDifficult = {
+            name,
+            value: value === 'zen' ? !formData.zen : value
+        }
+
+        handleChange(newDifficult)
+        
     }
 
     return (
@@ -57,50 +65,66 @@ export default function Menu(props) {
                         value={17}
                     />
                 </div> */}
-                <div className="option-wrapper">
-                    <h3>Difficult</h3>
-                    <form onSubmit={handleSubmit}>
-                        <div className="bttns-wrapper">
-                            <input 
-                                type="radio" 
-                                className="difficult-radio" 
-                                name="difficult" 
-                                id="easy" 
-                                value="easy"
-                                checked={formData.difficult === 'easy'}
-                                onChange={handleChange}
-                            />
-                            <input 
-                                type="radio" 
-                                className="difficult-radio" 
-                                name="difficult" 
-                                id="medium" 
-                                value="medium"
-                                checked={formData.difficult === 'medium'}
-                                onChange={handleChange}
-                            />
-                            <input 
-                                type="radio" 
-                                className="difficult-radio" 
-                                name="difficult" 
-                                id="hard" 
-                                value="hard"
-                                checked={formData.difficult === 'hard'}
-                                onChange={handleChange}
-                            />
-                        
-                            <button className={`bttn ${formData.difficult === 'easy' ? 'active' : null}`} onKeyDown={keyDown}>
-                                <label htmlFor="easy">Easy</label>
-                            </button>
-                            <button className={`bttn ${formData.difficult === 'medium' ? 'active' : null}`} onKeyDown={keyDown}>
-                                <label htmlFor="medium">Medium</label>
-                            </button>
-                            <button className={`bttn ${formData.difficult === 'hard' ? 'active' : null}`} onKeyDown={keyDown}>
-                                <label htmlFor="hard">Hard</label>
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                <form onSubmit={handleSubmit}>
+                    <div className="option-wrapper">
+                        <h3>Difficult</h3>
+                            <div className="bttns-wrapper">
+                                <input 
+                                    type="radio" 
+                                    className="difficult-radio" 
+                                    name="difficult" 
+                                    id="easy" 
+                                    value="easy"
+                                    checked={formData.difficult === 'easy'}
+                                    onChange={handleChange}
+                                />
+                                <input 
+                                    type="radio" 
+                                    className="difficult-radio" 
+                                    name="difficult" 
+                                    id="medium" 
+                                    value="medium"
+                                    checked={formData.difficult === 'medium'}
+                                    onChange={handleChange}
+                                />
+                                <input 
+                                    type="radio" 
+                                    className="difficult-radio" 
+                                    name="difficult" 
+                                    id="hard" 
+                                    value="hard"
+                                    checked={formData.difficult === 'hard'}
+                                    onChange={handleChange}
+                                />
+                            
+                                <button className={`bttn ${formData.difficult === 'easy' ? 'active' : ''}`} onKeyUp={keyDown}>
+                                    <label class="difficult-label" htmlFor="easy">Easy</label>
+                                </button>
+                                <button className={`bttn ${formData.difficult === 'medium' ? 'active' : ''}`} onKeyUp={keyDown}>
+                                    <label class="difficult-label" htmlFor="medium">Medium</label>
+                                </button>
+                                <button className={`bttn ${formData.difficult === 'hard' ? 'active' : ''}`} onKeyUp={keyDown}>
+                                    <label class="difficult-label" htmlFor="hard">Hard</label>
+                                </button>
+                            </div>
+                    </div>
+                    <div className="option-wrapper">
+                        <h3>Zen Mode</h3>
+                        <input 
+                            type="checkbox" 
+                            className="zen-checkbox"
+                            name="zen"
+                            id="zen"
+                            checked={formData.zen}
+                            onChange={handleChange}
+                        />
+                        <button className="switch" onKeyDown={keyDown}>
+                            <label className="zen-label" htmlFor="zen">
+                                <div className={`zen-ball ${formData.zen ? 'active' : ''}`} />
+                            </label>
+                        </button>
+                    </div>
+                </form>
                 <button 
                     className="bttn bttn-plus"
                     onClick={() => setGameState('game')}
