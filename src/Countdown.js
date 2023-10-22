@@ -20,7 +20,7 @@ export default function Countdown(props) {
                     setSeconds(prevSeconds => prevSeconds - 1)
                     setMiliseconds(99)
                 } else {
-                    // setGameState('gameover')
+                    setGameState('gameover')
                 }
             }, 10)
         }
