@@ -18,13 +18,14 @@
     --fs-500: 1.25rem;
     --fs-550: 1.5rem;
     --fs-400: 1rem;
-    --fs-200: .6rem;
+    --fs-200: .75rem;
 
     --fw-regular: 400;
     --fw-bold: 700;
 
     --primary-color: #faebd7;
     --secundary-color: #126000;
+    --dark-color: #b4a38e;
     --player: #ffbd2f;
 }
 
@@ -48,7 +49,6 @@ button {
     appearance: none;
     border: none;
     background: none;
-    cursor: pointer;
 }
 
 ul,
@@ -132,7 +132,7 @@ main {
 .path { background-color: #aea59a }
 .frontier { background-color: blue }
 .actual { background-color: red }
-.trail{ opacity: .3 }
+.trail{ opacity: .4 }
 
 .player, .trail { background-color: var(--player) }
 
@@ -267,6 +267,57 @@ main {
     background-color: var(--secundary-color);
 }
 
+.switch:before {
+    content: 'OFF';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 7px;
+    font-size: var(--fs-200);
+    color: var(--primary-color);
+    pointer-events: none;
+}
+
+.switch:after {
+    content: 'ON';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 7px;
+    font-size: var(--fs-200);
+    color: var(--primary-color);
+    pointer-events: none;
+}
+
+.info {
+    position: absolute;
+    left: 105%;
+    top: 0;
+    cursor: pointer;
+}
+
+.info-container {
+    position: absolute;
+    left: 145%;
+    top: 0;
+    width: max-content;
+    padding: .2em .4em;
+    background-color: var(--dark-color);
+    transition: opacity .2s ease;
+    border-radius: 5px;
+}
+
+.info-container::before {
+    content: '';
+    clip-path: polygon(100% 0, 0 0, 100% 100%);
+    width: 10px;
+    height: 10px;
+    background-color: var(--dark-color);
+    position: absolute;
+    top: 0;
+    left: -5px;
+}
+
 .zen-ball {
     aspect-ratio: 1/1;
     position: absolute;
@@ -346,10 +397,3 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
-
-/* @media (max-width: 720px) {
-    .footer {
-        right: 50%;
-        transform: translateX(50%);
-    }
-} */

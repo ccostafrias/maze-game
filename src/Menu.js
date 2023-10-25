@@ -1,5 +1,7 @@
 import React, {useState} from "react"
 
+import { AiFillInfoCircle } from "react-icons/ai"
+
 import {ReactComponent as Logo} from './images/logo.svg'
 import {ReactComponent as GitHub} from './images/github.svg'
 
@@ -11,6 +13,8 @@ export default function Menu(props) {
         formData,
         setFormData,
     } = props
+
+    const [infoVisible, setInfoVisible] = useState(false)
 
     const handleChange = (event) => {
         const { name, value, checked, type } = event.target ? event.target : event
@@ -34,7 +38,6 @@ export default function Menu(props) {
         event.preventDefault()
     }
 
-
     function keyDown(e) {
         if (e.key !== 'Enter') return
         const label = [...e.target.children][0]
@@ -48,6 +51,10 @@ export default function Menu(props) {
 
         handleChange(newDifficult)
         
+    }
+
+    function showInfo(e) {
+        setInfoVisible(prevInfoVisible => !prevInfoVisible)
     }
 
     return (
@@ -122,6 +129,15 @@ export default function Menu(props) {
                             <label className="zen-label" htmlFor="zen">
                                 <div className={`zen-ball ${formData.zen ? 'active' : ''}`} />
                             </label>
+                                <AiFillInfoCircle
+                                    className="info"
+                                    onClick={showInfo}
+                                />
+                                <div className="info-container" style={{
+                                    opacity: infoVisible ? '1' : '0'
+                                }}>
+                                    <span>Toogle timer <strong>on</strong> or <strong>off.</strong></span>
+                                </div>
                         </button>
                     </div>
                 </form>

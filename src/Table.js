@@ -233,11 +233,12 @@ export default function Table(props) {
         }
     }, [mouseDown, player])
 
-    // useEffect(() => {
-    //     window.addEventListener('keyup', keyhandle)
+    useEffect(() => {
+        setScore(0)
+        window.addEventListener('keyup', keyhandle)
 
-    //     return () => window.removeEventListener('keyup', keyhandle)
-    // }, [])
+        return () => window.removeEventListener('keyup', keyhandle)
+    }, [])
 
     const tableCells = maze.map((cell, i) => {
         const style = cell.actual ? {backgroundColor: "red"} : null
@@ -281,7 +282,7 @@ export default function Table(props) {
                 {tableCells}
             </div>
             <div className="bttns-wrapper">
-                <button className="bttn bttn-plus" onClick={() => nextMaze(true)}>Restart</button>
+                <button className="bttn bttn-plus" onClick={() => restartTable()}>Restart</button>
                 <button className="bttn bttn-plus" onClick={() => setGameState('menu')}>Menu</button>
             </div>
         </main>
