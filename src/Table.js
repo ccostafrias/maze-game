@@ -15,10 +15,11 @@ export default function Table(props) {
 
 
     const [count, setCount] = useState(0)
-    const [player, setPlayer] = useState({x: 1, y: 0})
     const [maze, setMaze] = useState(restartMaze())
+    const [player, setPlayer] = useState({x: 1, y: 0})
     const [mouseDown, setMouseDown] = useState(false)
     const [seconds, setSeconds] = useState(15)
+    const [mouseMove, setMouseMove] = useState({x: 0, y: 0})
     
     const toRad = deg => deg * (Math.PI / 180)
     const random = size => Math.floor(Math.random() * size)
@@ -122,7 +123,7 @@ export default function Table(props) {
     }
 
     // Mouse / keyboard handle functions
-    function mousehandle(e) {
+    function mouseHandle(e) {
         if ((e.type === 'mousedown' || e.type === 'touchstart') && e.target.className === 'player') setMouseDown(true)
         else if (e.type === 'mouseup' || e.type === 'touchend') setMouseDown(false)
     }
@@ -133,27 +134,36 @@ export default function Table(props) {
 
     // Player functions
     function movePlayer(e) {
-        if (!mouseDown) return
+        if (!e.buttons) return
 
         const trueTarget = e.type.includes('mouse') ? e.target : document.elementFromPoint(e.touches[0].pageX, e.touches[0].pageY)
         
         const [x, y] = Object.values(trueTarget.dataset).map(v => Number(v))
 
         const isPlayerAligned = getPlayerAligned(x, y)
+
+        if (isPlayerAligned.length > 1) console.log(isPlayerAligned)
+
+        const npX = isPlayerAligned[isPlayerAligned.length-1]?.x
+        const npY = isPlayerAligned[isPlayerAligned.length-1]?.y
         
         if (isPlayerAligned) {
             if (isPlayerAligned.length > 0 && isPlayerAligned !== 'end') {
                 setMaze(prevMaze => {
                     return prevMaze.map(m => {
                         const inAligned = isPlayerAligned.find(a => a.x === m.x && a.y === m.y)
-                        if (m.x === x && m.y === y) return {...m, type: 'player'}
-                        else if (m.type === 'player') return {...m, type: 'trail'}
-                        else if (inAligned) return {...m, type: 'trail'}
+                        const thereIsTrail = isPlayerAligned.find(a => a.type === 'trail')
+                        if (m.x === npX && m.y === npY) return {...m, type: 'player'}
+                        else if (m.type === 'player' && !thereIsTrail) return {...m, type: 'trail'}
+                        else if (inAligned) {
+                            if (thereIsTrail) return {...m, type: 'in'}
+                            return {...m, type: 'trail'}
+                        }
                         return m
                     })
                 })
     
-                setPlayer({x, y})
+                setPlayer({npX, npY})
 
                 return
             }
@@ -167,32 +177,28 @@ export default function Table(props) {
 
     function getPlayerAligned(x, y) {
         const [xp, yp] = Object.values(player)
+        const deltaX = x - xp
+        const deltaY = y - yp
+        const signX = Math.sign(deltaX)
+        const signY = Math.sign(deltaY)
 
         const between = []
 
         if (xp === x) {
-            const hy = yp > y ? yp : y
-            const ly = yp < y ? yp : y
-            const addLow = ly === yp ? 1 : 0
-            const addHigh = hy === yp ? 0 : 1
-            for (let r = ly+addLow; r < hy+addHigh; r++) {
-                const cell = maze[x + r * tableSize]
-                if (cell.type === 'end') return 'end'
-                if (cell.type !== 'in' && cell.type !== 'trail') return false
-                between.push(maze[x + r * tableSize])
+            for (let i = 0; i <= Math.abs(deltaY); i++) {
+                const cell = maze[x + (yp+(i*signY)) * tableSize]
+                if (cell.type === 'border' || cell.type === 'wall') return between
+                else if (cell.type === 'end') return 'end'
+                between.push(cell)
             }
             return between
         }
         if (yp === y) {
-            const hx = xp > x ? xp : x
-            const lx = xp < x ? xp : x
-            const addLow = lx === xp ? 1 : 0
-            const addHigh = hx === xp ? 0 : 1
-            for (let c = lx+addLow; c < hx+addHigh; c++) {
-                const cell = maze[c + y * tableSize]
-                if (cell.type === 'end') return 'end'
-                if (cell.type !== 'in' && cell.type !== 'trail') return false
-                between.push(maze[c + y * tableSize])
+            for (let i = 0; i <= Math.abs(deltaX); i++) {
+                const cell = maze[(xp+(i*signX)) + (y * tableSize)]
+                if (cell.type === 'border' || cell.type === 'wall') return between
+                else if (cell.type === 'end') return 'end'
+                between.push(cell)
             }
             return between
         }
@@ -224,14 +230,22 @@ export default function Table(props) {
     }, [count])
 
     useEffect(() => {
-        window.addEventListener('mouseup', mousehandle)
-        window.addEventListener('touchend', mousehandle)
-
+        window.addEventListener('mouseup', mouseHandle)
+        window.addEventListener('touchend', mouseHandle)
+        // window.addEventListener('mousedown', mouseHandle)
+        // window.addEventListener('touchstart', mouseHandle)
+        // window.addEventListener('mousemove', movePlayerMovement)
+        // window.addEventListener('touchmove', movePlayerMovement)
+        
         return () => {
-            window.removeEventListener('mouseup', mousehandle)
-            window.removeEventListener('touchend', mousehandle)
+            window.removeEventListener('mouseup', mouseHandle)
+            window.removeEventListener('touchend', mouseHandle)
+            // window.removeEventListener('mousedown', mouseHandle)
+            // window.removeEventListener('touchstart', mouseHandle)
+            // window.removeEventListener('mousemove', movePlayerMovement)
+            // window.removeEventListener('touchmove', movePlayerMovement)
         }
-    }, [mouseDown, player])
+    }, [mouseDown, player, mouseMove])
 
     useEffect(() => {
         setScore(0)
@@ -239,6 +253,16 @@ export default function Table(props) {
 
         return () => window.removeEventListener('keyup', keyhandle)
     }, [])
+
+    // useEffect(() => {
+    //     setMaze(prevMaze => (
+    //         prevMaze.map(m => {
+    //             if (m.x === player.x && m.y === player.y) return {...m, type: 'player'}
+    //             else if (m.type === 'player') return {...m, type: 'trail'}
+    //             return m
+    //         })
+    //     ))
+    // }, [player])
 
     const tableCells = maze.map((cell, i) => {
         const style = cell.actual ? {backgroundColor: "red"} : null
@@ -251,10 +275,10 @@ export default function Table(props) {
                 key={i}
                 onMouseMove={movePlayer}
                 onTouchMove={movePlayer}
-                onMouseDown={mousehandle}
-                onMouseUp={mousehandle}
-                onTouchStart={mousehandle}
-                onTouchEnd={mousehandle}
+                onMouseDown={mouseHandle}
+                onMouseUp={mouseHandle}
+                onTouchStart={mouseHandle}
+                onTouchEnd={mouseHandle}
             >
             </div>
         ) 

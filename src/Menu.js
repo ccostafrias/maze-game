@@ -53,7 +53,7 @@ export default function Menu(props) {
         
     }
 
-    function showInfo(e) {
+    function showInfo() {
         setInfoVisible(prevInfoVisible => !prevInfoVisible)
     }
 
@@ -105,13 +105,13 @@ export default function Menu(props) {
                                 />
                             
                                 <button className={`bttn ${formData.difficult === 'easy' ? 'active' : ''}`} onKeyUp={keyDown}>
-                                    <label class="difficult-label" htmlFor="easy">Easy</label>
+                                    <label className="difficult-label" htmlFor="easy">Easy</label>
                                 </button>
                                 <button className={`bttn ${formData.difficult === 'medium' ? 'active' : ''}`} onKeyUp={keyDown}>
-                                    <label class="difficult-label" htmlFor="medium">Medium</label>
+                                    <label className="difficult-label" htmlFor="medium">Medium</label>
                                 </button>
                                 <button className={`bttn ${formData.difficult === 'hard' ? 'active' : ''}`} onKeyUp={keyDown}>
-                                    <label class="difficult-label" htmlFor="hard">Hard</label>
+                                    <label className="difficult-label" htmlFor="hard">Hard</label>
                                 </button>
                             </div>
                     </div>
